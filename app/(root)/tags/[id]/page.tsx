@@ -7,13 +7,14 @@ import LocalSearch from '@/components/local-search';
 import NoResult from '@/components/no-result';
 import QuestionCard from '@/components/cards/question-card';
 import Pagination from '@/components/pagination';
+import { Suspense } from 'react';
 
 export async function generateMetadata(
   { params }: MetaDataProps,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
-  const id = params.id;
+  const id = (await params).id;
   // fetch data
   const tag = await getQuestionsByTagId({ tagId: id });
   const { tagName } = tag;
@@ -27,7 +28,9 @@ export async function generateMetadata(
   };
 }
 
-export default async function TagDetailsPage({ params, searchParams }: ParamsSearchProps) {
+export default async function TagDetailsPage(props: ParamsSearchProps) {
+  const params  = await props.params; 
+  const searchParams = await props.searchParams;
   const tag = await getQuestionsByTagId({
     tagId: params.id,
     searchQuery: searchParams.q,
@@ -39,13 +42,15 @@ export default async function TagDetailsPage({ params, searchParams }: ParamsSea
     <>
       <h1 className="h1-bold uppercase">{tagName}</h1>
       <div className="mt-11">
-        <LocalSearch
+        <Suspense>
+          <LocalSearch
           route={`/tags/${params.id}`}
           icon={<SearchIcon />}
           iconPosition="left"
           placeholder="Search tag questions"
           className="flex-1"
         />
+        </Suspense>
       </div>
       <div className="mt-10 flex flex-col gap-5">
         {questions.length > 0 ? (
@@ -59,7 +64,9 @@ export default async function TagDetailsPage({ params, searchParams }: ParamsSea
           />
         )}
       </div>
-      <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      </Suspense>
     </>
   );
 }

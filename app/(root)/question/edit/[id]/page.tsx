@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { getQuestionById } from '@/actions/question.action';
 import QuestionForm from '@/components/forms/question-form';
 
@@ -9,8 +9,11 @@ export const metadata: Metadata = {
     'Edit your question. Get unstuck, share ideas, and learn together. Join us, it only takes a minute.',
 };
 
-export default async function EditQuestionPage({ params }: { params: { id: string } }) {
-  const { userId } = auth();
+export default async function EditQuestionPage(props:{ params: Promise< { id: string }> }) {
+  
+  const { userId } = await auth();
+
+  const params = await props.params;
   const question = await getQuestionById(params.id);
 
   return (

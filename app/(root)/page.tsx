@@ -11,9 +11,10 @@ import NoResult from '@/components/no-result';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { getAllQuestions } from '@/actions/question.action';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { SearchParamsProps } from '@/types/props';
 import Pagination from '@/components/pagination';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Dev Overflow | Home',
@@ -21,9 +22,10 @@ export const metadata: Metadata = {
     'Dev Overflow is a community of developers, where you can ask questions and receive answers from other members of the community.',
 };
 
-export default async function Home({ searchParams }: SearchParamsProps) {
+export default async function Home(props: SearchParamsProps) {
   // const questions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const { userId } = auth();
+  const { userId } = await auth();
+  const searchParams = await props.searchParams;
   const result = await getAllQuestions({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
@@ -40,16 +42,22 @@ export default async function Home({ searchParams }: SearchParamsProps) {
         </Link>
       </div>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
-          route="/"
-          icon={<SearchIcon />}
-          iconPosition="left"
-          placeholder="Search for questions"
-          className="flex-1"
-        />
-        <Filter filters={HomePageFilters} containerClass="sm:min-w-[170px] md:hidden" />
+          <Suspense>
+            <LocalSearch
+              route="/"
+              icon={<SearchIcon />}
+              iconPosition="left"
+              placeholder="Search for questions"
+              className="flex-1"
+            />
+          </Suspense>
+        <Suspense>
+          <Filter filters={HomePageFilters} containerClass="sm:min-w-[170px] md:hidden" />
+        </Suspense>
       </div>
-      <HomeFilter />
+      <Suspense>
+        <HomeFilter />
+      </Suspense>
       <div className="mt-10 flex flex-col gap-5">
         {questions.length > 0 ? (
           questions.map((question) => (
@@ -64,7 +72,9 @@ export default async function Home({ searchParams }: SearchParamsProps) {
           />
         )}
       </div>
-      <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />  
+      </Suspense>      
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { getUserById } from '@/actions/user.action';
 import ProfileForm from '@/components/forms/profile-form';
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function EditProfilePage() {
-  const { userId } = auth();
+  const { userId } = await auth();
   const mongoUser = await getUserById(userId!);
   return (
     <>

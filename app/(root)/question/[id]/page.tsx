@@ -2,7 +2,7 @@ import { Metadata, ResolvingMetadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Clock, Eye, MessageCircle } from 'lucide-react';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { MetaDataProps, ParamsSearchProps } from '@/types/props';
 import { getQuestionById } from '@/actions/question.action';
 import { getUserById } from '@/actions/user.action';
@@ -19,7 +19,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
-  const id = params.id;
+  const id = (await params).id;
   // fetch data
   const question = await getQuestionById(id);
   // optionally access and extend (rather than replace) parent metadata
@@ -34,10 +34,12 @@ export async function generateMetadata(
   };
 }
 
-export default async function QuestionDetailPage({ params, searchParams }: ParamsSearchProps) {
+export default async function QuestionDetailPage(props: ParamsSearchProps) {
+  const params = await props.params; 
+  const searchParams = await props.searchParams; 
   const question = await getQuestionById(params.id);
   const { title, content, views, upvotes, downvotes, createdAt, tags, answers, author } = question;
-  const { userId } = auth();
+  const { userId } = await auth();
   const mongoUser = await getUserById(userId!);
   // warning: mongodb objectId can not be passed as props from server component to client component
   const mongoUserId = mongoUser?.id;

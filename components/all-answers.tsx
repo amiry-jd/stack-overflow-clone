@@ -7,6 +7,7 @@ import getTimeStamp from '@/utils/getTimeStamp';
 import ParseHTML from './parse-html';
 import Votes from './votes';
 import Pagination from './pagination';
+import { Suspense } from 'react';
 
 interface Props {
   questionId: string;
@@ -30,7 +31,9 @@ export default async function AllAnswers({
     <div className="mt-11">
       <div className="flex items-center justify-between">
         <h3 className="primary-text-gradient">{totalAnswers} Answers</h3>
-        <Filter filters={AnswerFilters} />
+        <Suspense>
+          <Filter filters={AnswerFilters} />
+        </Suspense>
       </div>
       <div>
         {answers.map((answer) => (
@@ -68,7 +71,9 @@ export default async function AllAnswers({
           </article>
         ))}
       </div>
-      <Pagination pageNumber={Number(page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(page) || 1} isNext={isNext} />
+      </Suspense>
     </div>
   );
 }

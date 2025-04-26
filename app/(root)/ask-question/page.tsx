@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import QuestionForm from '@/components/forms/question-form';
 
 export const metadata: Metadata = {
@@ -8,8 +8,8 @@ export const metadata: Metadata = {
     'Ask a question on Dev Overflow and receive answers from other members of the community.',
 };
 
-export default function AskQuestionPage() {
-  const { userId } = auth();
+export default async function AskQuestionPage() {
+  const { userId } = await auth();
   return (
     <div>
       <h1 className="h1-bold text-dark100_light900">Ask a question</h1>

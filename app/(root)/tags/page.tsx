@@ -11,6 +11,7 @@ import NoResult from '@/components/no-result';
 import { tagVariants } from '@/components/tags-badge';
 import { cn } from '@/lib/utils';
 import Pagination from '@/components/pagination';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Dev Overflow | Tags',
@@ -18,7 +19,8 @@ export const metadata: Metadata = {
     'Tags are a means of connecting experts with questions they will be able to answer by sorting questions into specific, well-defined categories.',
 };
 
-export default async function TagsPage({ searchParams }: SearchParamsProps) {
+export default async function TagsPage(props: SearchParamsProps) {
+  const searchParams = await props.searchParams;
   const result = await getAllTags({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
@@ -30,14 +32,18 @@ export default async function TagsPage({ searchParams }: SearchParamsProps) {
     <>
       <h1 className="h1-bold">All Tags</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
-          route="/tags"
-          icon={<SearchIcon />}
-          iconPosition="left"
-          placeholder="Search for tags"
-          className="flex-1"
-        />
-        <Filter filters={TagFilters} />
+         <Suspense>
+           <LocalSearch
+            route="/tags"
+            icon={<SearchIcon />}
+            iconPosition="left"
+            placeholder="Search for tags"
+            className="flex-1"
+          />
+         </Suspense>
+        <Suspense>
+          <Filter filters={TagFilters} />
+        </Suspense>
       </div>
       <section className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-4">
         {tags.length > 0 ? (
@@ -76,7 +82,9 @@ export default async function TagsPage({ searchParams }: SearchParamsProps) {
           />
         )}
       </section>
-      <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      </Suspense>
     </>
   );
 }

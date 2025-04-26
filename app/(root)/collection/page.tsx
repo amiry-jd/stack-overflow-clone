@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { SearchIcon } from 'lucide-react';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { SearchParamsProps } from '@/types/props';
 import { QuestionFilters } from '@/constants/filters';
 import { savedQuestionNoResult } from '@/constants/no-result';
@@ -10,6 +10,7 @@ import Filter from '@/components/filter';
 import NoResult from '@/components/no-result';
 import QuestionCard from '@/components/cards/question-card';
 import Pagination from '@/components/pagination';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Dev Overflow | Collections',
@@ -17,8 +18,9 @@ export const metadata: Metadata = {
     "Your collections of saved questions on Dev Overflow. You can save questions by clicking on the star icon on the question's page",
 };
 
-export default async function CollectionPage({ searchParams }: SearchParamsProps) {
-  const { userId } = auth();
+export default async function CollectionPage(props: SearchParamsProps) {
+  const { userId } = await auth();
+  const searchParams = await props.searchParams;
   const result = await getSavedQuestions({
     clerkId: userId!,
     searchQuery: searchParams.q,
@@ -31,14 +33,18 @@ export default async function CollectionPage({ searchParams }: SearchParamsProps
     <>
       <h1 className="h1-bold">Saved Questions</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
+        <Suspense>
+          <LocalSearch
           route="/collection"
           icon={<SearchIcon />}
           iconPosition="left"
           placeholder="Search in saved questions"
           className="flex-1"
         />
-        <Filter filters={QuestionFilters} />
+        </Suspense>
+        <Suspense>
+          <Filter filters={QuestionFilters} />
+        </Suspense>
       </div>
       <div className="mt-10 flex flex-col gap-5">
         {savedQuestions.length > 0 ? (
@@ -54,7 +60,9 @@ export default async function CollectionPage({ searchParams }: SearchParamsProps
           />
         )}
       </div>{' '}
-      <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      </Suspense>
     </>
   );
 }

@@ -2,7 +2,8 @@ import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CalendarDaysIcon, LinkIcon, MapPinIcon } from 'lucide-react';
-import { SignedIn, auth } from '@clerk/nextjs';
+import { SignedIn } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { MetaDataProps, ParamsSearchProps } from '@/types/props';
 import { getUserInfo } from '@/actions/user.action';
 import getJoinedDate from '@/utils/getJoinedDate';
@@ -18,7 +19,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
-  const id = params.id;
+  const id = (await params).id;
 
   // fetch data
   const userInfo = await getUserInfo(id);
@@ -36,8 +37,10 @@ export async function generateMetadata(
   };
 }
 
-export default async function Profile({ params, searchParams }: ParamsSearchProps) {
-  const { userId: clerkId } = auth();
+export default async function Profile(props: ParamsSearchProps) {
+  const { userId: clerkId } = await auth();
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const userInfo = await getUserInfo(params?.id!);
   const { user, totalQuestions, totalAnswers, badgeCounts } = userInfo;
 
@@ -118,10 +121,10 @@ export default async function Profile({ params, searchParams }: ParamsSearchProp
             </TabsTrigger>
           </TabsList>
           <TabsContent value="top-posts">
-            <QuestionsTab userId={user._id} searchParams={searchParams} />
+            <QuestionsTab userId={user._id} searchParams={props.searchParams} />
           </TabsContent>
           <TabsContent value="answers">
-            <AnswerTabs userId={user._id} searchParams={searchParams} />
+            <AnswerTabs userId={user._id} searchParams={props.searchParams} />
           </TabsContent>
         </Tabs>
       </div>

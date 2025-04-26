@@ -8,6 +8,7 @@ import LocalSearch from '@/components/local-search';
 import UserCard from '@/components/cards/user-card';
 import { SearchParamsProps } from '@/types/props';
 import Pagination from '@/components/pagination';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Dev Overflow | Community',
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
     'Dev Overflow is a community of developers, where you can ask questions and receive answers from other members of the community.',
 };
 
-export default async function CommunityPage({ searchParams }: SearchParamsProps) {
+export default async function CommunityPage(props: SearchParamsProps) {
+  const searchParams = await props.searchParams;
   const result = await getAllUsers({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
@@ -25,16 +27,21 @@ export default async function CommunityPage({ searchParams }: SearchParamsProps)
 
   return (
     <>
+   
       <h1 className="h1-bold">All Users</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
+        <Suspense>
+          <LocalSearch
           route="/community"
           icon={<SearchIcon />}
           iconPosition="left"
           placeholder="Search for amazing minds"
           className="flex-1"
         />
-        <Filter filters={UserFilters} />
+        </Suspense>
+        <Suspense>
+          <Filter filters={UserFilters} />
+        </Suspense>
       </div>
       <section className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 min-[1700px]:grid-cols-4 min-[2200px]:grid-cols-5">
         {users.length > 0 ? (
@@ -48,7 +55,9 @@ export default async function CommunityPage({ searchParams }: SearchParamsProps)
           </div>
         )}
       </section>
-      <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      <Suspense>
+        <Pagination pageNumber={Number(searchParams.page) || 1} isNext={isNext} />
+      </Suspense>      
     </>
   );
 }
