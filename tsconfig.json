@@ -17,6 +17,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": "src",
     "types": [
       //"node",
       //"webpack-env"
@@ -31,7 +32,7 @@
     ],
     "paths": {
       "@/*": [
-        "./*"
+        "*"
       ]
     }
   },

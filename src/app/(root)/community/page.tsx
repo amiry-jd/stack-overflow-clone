@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { SearchIcon } from 'lucide-react';
-import Filter from '../../../components/filter';
+import Filter from '@/components/filter';
 import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/actions/user.action';
 import LocalSearch from '@/components/local-search';

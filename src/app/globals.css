@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@config "../tailwind.config.ts";
+/* @import "tailwindcss"; */
 
 /* @tailwind base;
 @tailwind components;
@@ -7,6 +6,8 @@
 
 @import url('../styles/custom.css');
 @import url('../styles/theme.css');
+
+@config "../../tailwind.config.ts";
 
 @layer base {
   :root {

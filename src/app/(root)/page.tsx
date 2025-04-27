@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { SearchIcon } from 'lucide-react';
-import Filter from '../../components/filter';
+import Filter from '@/components/filter';
 import HomeFilter from './_components/home-filter';
 import { HomePageFilters } from '@/constants/filters';
 import { questionNoResult } from '@/constants/no-result';
